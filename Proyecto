@@ -1,0 +1,430 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <conio.h>
+#include <windows.h>
+
+void limpiarPantalla() { system("cls"); }                                       /* FUNCIONES */
+void pausar() { printf("\nPresiona una tecla para continuar..."); getch(); }    /* DE UTILIDAD */
+
+typedef struct {
+char id[10];
+char nombre[50];
+char apellido[50];      /* ESTRUCTURA DE PROFESORES */
+char departamento[30];
+} Profesor;
+
+typedef struct {
+    char id[10];
+    char nombre[50];
+    char apellido[50]; /* ESTRUCTURA DE ALUMNOS */
+    char carrera[30];
+} Alumno;
+
+    //Variables :)
+const char *PoA[]={"Alumno(s)", "Profesor(es)"};
+int tipos;     //declarar para decidir entre 1 = alumno, o 2 = Profesor
+Alumno *listaAlumnos = NULL; /* PUNTERO HACIA EL VALOR DE LISTA DE ALUMNOS */
+int totalAlumnos = 0;
+Profesor *listaProfesores = NULL; /* PUNTERO HACIA EL VALOR DE LISTA DE ALUMNOS */
+int totalProfesores = 0;
+
+void cargar() {
+    FILE *archivo = fopen("alumnos.txt", "r");
+    if (!archivo) return;                                                               /* fUNCION */
+                                                                                        /* DE CARGA */
+    Alumno temp;                                                                        /* PARA ALUMNOS */
+    while (fscanf(archivo, "%[^,],%[^,],%[^,],%[^\n]\n",
+                  temp.id, temp.nombre, temp.apellido, temp.carrera) == 4) {
+        Alumno *nuevaLista = realloc(listaAlumnos, (totalAlumnos + 1) * sizeof(Alumno));
+        if (!nuevaLista) break;
+        listaAlumnos = nuevaLista;
+        listaAlumnos[totalAlumnos++] = temp;
+    }
+    fclose(archivo);
+    /* $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  */
+}
+void cargarprofesores() {
+    FILE *archivo = fopen("profesores.txt", "r");
+    if (!archivo) return;                                                                /* fUNCION */
+                                                                                         /* DE CARGA */
+    Profesor temp;                                                                       /* PARA PROFESORES */
+    while (fscanf(archivo, "%[^,],%[^,],%[^,],%[^\n]\n",
+                  temp.id, temp.nombre, temp.apellido, temp.departamento) == 4) {
+        Profesor *nuevaLista = realloc(listaProfesores, (totalProfesores + 1) * sizeof(Profesor));
+        if (!nuevaLista) break;
+        listaProfesores = nuevaLista;
+        listaProfesores[totalProfesores++] = temp;
+    }
+    fclose(archivo);
+}
+
+void guardarAlumnos() {
+    FILE *archivo = fopen("alumnos.txt", "w");                                           /* fUNCION */
+    if (!archivo) return;                                                                /* DE GUARDADO */
+    for (int i = 0; i < totalAlumnos; i++) {                                             /* PARA ALUMNOS */
+        fprintf(archivo, "%s,%s,%s,%s\n",
+                listaAlumnos[i].id,
+                listaAlumnos[i].nombre,
+                listaAlumnos[i].apellido,
+                listaAlumnos[i].carrera);
+    }
+    fclose(archivo);
+
+}
+
+void guardarprofesores() {
+    FILE *archivo = fopen("profesores.txt", "w");                                         /* fUNCION */
+    if (!archivo) return;                                                                 /* DE GUARDADO */
+    for (int i = 0; i < totalProfesores; i++) {                                           /* PARA PROFESORES */
+        fprintf(archivo, "%s,%s,%s,%s\n",
+                listaProfesores[i].id,
+                listaProfesores[i].nombre,
+                listaProfesores[i].apellido,
+                listaProfesores[i].departamento);
+    }
+    fclose(archivo);
+}
+/* $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ */
+
+void agregar() {
+    limpiarPantalla();
+    printf("=== AGREGAR %s ===\n", PoA[tipos]);
+    if(PoA[tipos]=="Alumno(s)") {
+    Alumno nuevo;
+        printf("Nombre(s): ");
+        fflush(stdin);
+        fgets(nuevo.nombre, sizeof(nuevo.nombre), stdin);
+        nuevo.nombre[strcspn(nuevo.nombre, "\n")] = 0;
+
+        printf("Apellido(s): ");
+        fgets(nuevo.apellido, sizeof(nuevo.apellido), stdin);
+        nuevo.apellido[strcspn(nuevo.apellido, "\n")] = 0;
+
+        printf("Carrera: ");
+        fgets(nuevo.carrera, sizeof(nuevo.carrera), stdin);
+        nuevo.carrera[strcspn(nuevo.carrera, "\n")] = 0;
+
+        printf("ID: ");
+        fgets(nuevo.id, sizeof(nuevo.id), stdin);
+        nuevo.id[strcspn(nuevo.id, "\n")] = 0;
+
+    for (int i = 0; i < totalAlumnos; i++) {
+        if (strcmp(listaAlumnos[i].id, nuevo.id) == 0) {
+            printf("\nError: El ID ya existe.\n");
+            pausar();
+            return;
+        }
+    }
+
+    Alumno *nuevaLista = realloc(listaAlumnos, (totalAlumnos + 1) * sizeof(Alumno));
+    if (!nuevaLista) {
+        printf("\nError de memoria.\n");
+        pausar();
+        return;
+    }
+
+    listaAlumnos = nuevaLista;
+    listaAlumnos[totalAlumnos++] = nuevo;
+
+    printf("\nAlumno agregado correctamente.\n");
+    Sleep(700);
+    }
+    else if(PoA[tipos]=="Profesor(es)"){
+        Profesor nuevo;
+          printf("Nombre(s): ");
+        fflush(stdin);
+        fgets(nuevo.nombre, sizeof(nuevo.nombre), stdin);
+        nuevo.nombre[strcspn(nuevo.nombre, "\n")] = 0;
+
+        printf("Apellido(s): ");
+        fgets(nuevo.apellido, sizeof(nuevo.apellido), stdin);
+        nuevo.apellido[strcspn(nuevo.apellido, "\n")] = 0;
+
+        printf("Departamento: ");
+        fgets(nuevo.departamento, sizeof(nuevo.departamento), stdin);
+        nuevo.departamento[strcspn(nuevo.departamento, "\n")] = 0;
+
+        printf("ID: ");
+        fgets(nuevo.id, sizeof(nuevo.id), stdin);
+        nuevo.id[strcspn(nuevo.id, "\n")] = 0;
+
+    for (int i = 0; i < totalProfesores; i++) {
+        if (strcmp(listaProfesores[i].id, nuevo.id) == 0) {
+            printf("\nError: El ID ya existe.\n");
+            pausar();
+            return;
+        }
+    }
+
+    Profesor *nuevaLista = realloc(listaProfesores, (totalProfesores + 1) * sizeof(Profesor));
+    if (!nuevaLista) {
+        printf("\nError de memoria.\n");
+        pausar();
+        return;
+    }
+
+    listaProfesores = nuevaLista;
+    listaProfesores[totalProfesores++] = nuevo;
+
+    printf("\nProfesor agregado correctamente.\n");
+    Sleep(700);
+    }
+}
+
+void consultar() {
+    limpiarPantalla();
+    printf("=== Consultar %s===\n\n", PoA[tipos]);
+
+    if (PoA[tipos]=="Alumno(s)"){
+        if (totalAlumnos == 0) {
+            printf("No hay alumnos registrados.\n");
+        }
+        else {
+            for (int i = 0; i < totalAlumnos; i++) {
+                printf("%d) %s %s - %s (%s)\n", i + 1,
+                   listaAlumnos[i].nombre,
+                   listaAlumnos[i].apellido,
+                   listaAlumnos[i].id,
+                   listaAlumnos[i].carrera);
+            }
+        }
+    }
+    else if(PoA[tipos]=="Profesor(es)"){
+        if (totalProfesores == 0) {
+            printf("No hay Profesores registrados.\n");
+        }
+        else {
+            for (int i = 0; i < totalProfesores; i++) {
+                printf("%d) %s %s - %s (%s)\n", i + 1,
+                   listaProfesores[i].nombre,
+                   listaProfesores[i].apellido,
+                   listaProfesores[i].id,
+                   listaProfesores[i].departamento);
+            }
+        }
+    }
+
+    pausar();
+}
+
+void buscar() {
+    limpiarPantalla();
+    printf("=== BUSCAR %s===\n", PoA[tipos]);
+
+        char id[10];
+        printf("Ingrese el ID: ");
+        fflush(stdin);
+        fgets(id, sizeof(id), stdin);
+        id[strcspn(id, "\n")] = 0;
+    if(PoA[tipos]=="Alumno(s)"){
+        for (int i = 0; i < totalAlumnos; i++) {
+            if (strcmp(listaAlumnos[i].id, id) == 0) {
+                printf("\nNombre: %s %s\nCarrera: %s\nID: %s\n",
+                    listaAlumnos[i].nombre,
+                    listaAlumnos[i].apellido,
+                    listaAlumnos[i].carrera,
+                    listaAlumnos[i].id);
+                pausar();
+            return;
+        }
+    }
+
+        printf("\nAlumno no encontrado.\n");
+        pausar();
+    }
+    else if(PoA[tipos]=="Profesor(es)"){
+        for (int i = 0; i < totalProfesores; i++) {
+            if (strcmp(listaProfesores[i].id, id) == 0) {
+                printf("\nNombre: %s %s\nDepartamento: %s\nID: %s\n",
+                    listaProfesores[i].nombre,
+                    listaProfesores[i].apellido,
+                    listaProfesores[i].departamento,
+                    listaProfesores[i].id);
+                pausar();
+            return;
+        }
+    }
+
+        printf("\nProfesor no encontrado.\n");
+        pausar();
+    }
+}
+
+void modificar() {
+    limpiarPantalla();
+    printf("=== MODIFICAR %s===\n", PoA[tipos]);
+
+    char id[10];
+    printf("Ingrese el ID a Modificar: ");
+    fflush(stdin);
+    fgets(id, sizeof(id), stdin);
+    id[strcspn(id, "\n")] = 0;
+    if (PoA[tipos]=="Alumno(s)"){
+        for (int i = 0; i < totalAlumnos; i++) {
+            if (strcmp(listaAlumnos[i].id, id) == 0) {
+                printf("Nuevo nombre: ");
+                fgets(listaAlumnos[i].nombre, sizeof(listaAlumnos[i].nombre), stdin);
+                listaAlumnos[i].nombre[strcspn(listaAlumnos[i].nombre, "\n")] = 0;
+
+                printf("Nuevo apellido: ");
+                fgets(listaAlumnos[i].apellido, sizeof(listaAlumnos[i].apellido), stdin);
+                listaAlumnos[i].apellido[strcspn(listaAlumnos[i].apellido, "\n")] = 0;
+
+                printf("Nueva carrera: ");
+                fgets(listaAlumnos[i].carrera, sizeof(listaAlumnos[i].carrera), stdin);
+                listaAlumnos[i].carrera[strcspn(listaAlumnos[i].carrera, "\n")] = 0;
+
+                printf("\nAlumno modificado correctamente.\n");
+                Sleep(700);
+                return;
+            }
+        }
+
+        printf("\nAlumno no encontrado.\n");
+        pausar();
+    }
+    else if (PoA[tipos]=="Profesor(es)"){
+        for (int i = 0; i < totalProfesores; i++) {
+            if (strcmp(listaProfesores[i].id, id) == 0) {
+                printf("Nuevo nombre: ");
+                fgets(listaProfesores[i].nombre, sizeof(listaProfesores[i].nombre), stdin);
+                listaProfesores[i].nombre[strcspn(listaProfesores[i].nombre, "\n")] = 0;
+
+                printf("Nuevo apellido: ");
+                fgets(listaProfesores[i].apellido, sizeof(listaProfesores[i].apellido), stdin);
+                listaProfesores[i].apellido[strcspn(listaProfesores[i].apellido, "\n")] = 0;
+
+                printf("Nueva departamento: ");
+                fgets(listaProfesores[i].departamento, sizeof(listaProfesores[i].departamento), stdin);
+                listaProfesores[i].departamento[strcspn(listaProfesores[i].departamento, "\n")] = 0;
+
+                printf("\nProfesor modificado correctamente.\n");
+                Sleep(700);
+                return;
+            }
+        }
+
+        printf("\nProfesor no encontrado.\n");
+        pausar();
+    }
+}
+
+void eliminar() {
+    limpiarPantalla();
+    printf("=== ELIMINAR %s===\n\n", PoA[tipos]);
+
+    char id[10];
+    printf("Ingrese el ID &s: ", PoA);
+    fflush(stdin);
+    fgets(id, sizeof(id), stdin);
+    id[strcspn(id, "\n")] = 0;
+
+    if(PoA[tipos]=="Alumno(s)"){
+        for (int i = 0; i < totalAlumnos; i++) {
+            if (strcmp(listaAlumnos[i].id, id) == 0) {
+                memmove(&listaAlumnos[i], &listaAlumnos[i + 1], (totalAlumnos - i - 1) * sizeof(Alumno));
+                totalAlumnos--;
+                listaAlumnos = realloc(listaAlumnos, totalAlumnos * sizeof(Alumno));
+                printf("\nAlumno eliminado correctamente.\n");
+                Sleep(700);
+                return;
+            }
+        }
+
+        printf("\nAlumno no encontrado.\n");
+        pausar();
+    }
+    else if(PoA[tipos]=="Profesor(es)"){
+        for (int i = 0; i < totalProfesores; i++) {
+            if (strcmp(listaProfesores[i].id, id) == 0) {
+                memmove(&listaProfesores[i], &listaProfesores[i + 1], (totalProfesores - i - 1) * sizeof(Profesor));
+                totalProfesores--;
+                listaProfesores = realloc(listaProfesores, totalProfesores * sizeof(Profesor));
+                printf("\nProfesor eliminado correctamente.\n");
+                Sleep(700);
+                return;
+            }
+        }
+
+        printf("\nProfesor no encontrado.\n");
+        pausar();
+    }
+}
+//#################################################################################################################################################################
+void menuCRUD() {
+    int opcion = 0, tecla;
+    const char *opciones[] = {
+        "Agregar",
+        "Consultar",
+        "Buscar",
+        "Modificar",
+        "Eliminar",
+        "Regresar al Menu Principal"
+    };
+    int n = 6;
+
+    while (1) {
+        limpiarPantalla();
+        printf("=== GESTION %s ===\n\n", PoA[tipos]);
+        for (int i = 0; i < n; i++)
+            printf("%s%s%s\n", (i == opcion ? " > " : "   "), opciones[i], (i == opcion ? " <" : ""));
+
+        tecla = getch();
+        if (tecla == 72) opcion = (opcion - 1 + n) % n;
+        else if (tecla == 80) opcion = (opcion + 1) % n;
+        else if (tecla == 13) {
+            switch (opcion) {
+                case 0: agregar(); break;
+                case 1: consultar(); break;
+                case 2: buscar(); break;
+                case 3: modificar(); break;
+                case 4: eliminar(); break;
+                case 5: return;
+            }
+        }
+    }
+}
+
+void menuPrincipal() {
+    int opcion = 0, tecla;
+    const char *opciones[] = {
+        "Gestion de Alumnos",
+        "Gestion de Profesores",
+        "Guardar y Salir"
+    };
+    int n = 3;
+
+    while (1) {
+        limpiarPantalla();
+        printf("=== SISTEMA DE GESTION ACADEMICA 'CUCEI' ===\n\n");
+
+        for (int i = 0; i < n; i++)
+            printf("%s%s%s\n", (i == opcion ? " > " : "   "), opciones[i], (i == opcion ? " <" : ""));
+
+        tecla = getch();
+        if (tecla == 72) opcion = (opcion - 1 + n) % n;
+        else if (tecla == 80) opcion = (opcion + 1) % n;
+        else if (tecla == 13) {
+            switch (opcion) {
+                case 0: tipos = 0; menuCRUD(); break;
+                case 1: tipos = 1; menuCRUD(); break;
+                case 2: guardarAlumnos();
+                    guardarprofesores();
+                    free(listaAlumnos);
+                    free(listaProfesores);
+                    printf("\nDatos guardados. Saliendo...\n");
+                    Sleep(800);
+                    exit(0);
+            }
+        }
+    }
+}
+
+int main() {
+    SetConsoleOutputCP(65001);
+    cargar();
+    cargarprofesores();
+    menuPrincipal();
+    return 0;
+}

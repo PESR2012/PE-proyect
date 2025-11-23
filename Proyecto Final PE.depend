@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1762142524 source:c:\users\nesaumi\desktop\proyecto final\proyecto final pe\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<conio.h>
+	<windows.h>
+
